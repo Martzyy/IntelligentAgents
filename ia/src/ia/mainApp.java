@@ -20,7 +20,7 @@ public class mainApp {
 		RewardModel rm = new RewardModel();
 		State[][] states = generateStates(env);
 		Policy p = new Policy(states,tm,rm);
-		valueIteration(0.85,0.000000000000000001,p);
+		valueIteration(0.99,0.000000000000000001,p);
 		printRewards(env, rm);
 		printUtilities(states);
 	}
