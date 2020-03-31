@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.lang.Exception;
 import java.util.Random;
+import java.io.BufferedWriter;
+import java.lang.StringBuilder;
 
 public class mainApp {
 	public static void main(String args[]) throws Exception {
@@ -22,7 +24,7 @@ public class mainApp {
 		RewardModel rm = new RewardModel();
 		State[][] states = generateStates(env);
 		Policy p = new Policy(states,tm,rm);
-		valueIteration(discount,0.1,p);
+		valueIteration(discount,1,p);
 		printUtilities(states);
 		plotPolicy(p, discount);
 		printPolicy(p);
@@ -47,6 +49,60 @@ public class mainApp {
 		printUtilities(states2);
 		plotPolicy(p2, discount2);
 		printPolicy(p2);
+		
+		Environment env3 = new Environment(12,12);
+		double discount3 = 0.99;
+		String[][] envArray3 = {	{"G","B","G","W","W","G","W","B","O","G","W","W"},
+									{"W","O","W","G","B","O","G","W","W","G","W","W"},
+									{"W","W","O","W","G","W","O","W","G","B","O","G"},
+									{"W","W","W","O","W","G","W","O","W","G","B","O"},
+									{"W","B","B","B","O","W","O","W","G","W","O","W"},
+									{"W","W","W","W","W","W","B","B","B","O","W","B"},
+									{"W","O","W","G","B","O","G","W","W","G","W","W"},
+									{"W","W","W","O","W","G","W","O","W","G","B","O"},
+									{"W","B","B","B","O","W","O","W","G","W","O","W"},
+									{"G","B","G","W","W","G","W","B","O","G","W","W"},
+									{"W","O","W","G","B","O","G","W","W","G","W","W"},
+									{"W","W","O","W","G","W","O","W","G","B","O","G"}
+		};
+		Vector2D defaultmove3 = new Vector2D(0,0);
+		updateEnvironment(envArray3,env3);
+		TransitionModel tm3 = new TransitionModel();
+		new TransitionHandler(tm3,defaultmove3);
+		RewardModel rm3 = new RewardModel();
+		State[][] states3 = generateStates(env3);
+		Policy p3 = new Policy(states3,tm3,rm3);
+		valueIteration(discount3,0.1,p3);
+		printUtilities(states3);
+		plotPolicy(p3, discount3);
+		printPolicy(p3);
+		
+		Environment env4 = new Environment(12,12);
+		double discount4 = 0.99;
+		String[][] envArray4 = {	{"G","B","G","W","W","G","W","B","O","G","W","W"},
+									{"W","O","W","G","B","O","G","W","W","G","W","W"},
+									{"W","W","O","W","G","W","O","W","G","B","O","G"},
+									{"W","W","W","O","W","G","W","O","W","G","B","O"},
+									{"W","B","B","B","O","W","O","W","G","W","O","W"},
+									{"W","W","W","W","W","W","B","B","B","O","W","B"},
+									{"W","O","W","G","B","O","G","W","W","G","W","W"},
+									{"W","W","W","O","W","G","W","O","W","G","B","O"},
+									{"W","B","B","B","O","W","O","W","G","W","O","W"},
+									{"G","B","G","W","W","G","W","B","O","G","W","W"},
+									{"W","O","W","G","B","O","G","W","W","G","W","W"},
+									{"W","W","O","W","G","W","O","W","G","B","O","G"}
+		};
+		Vector2D defaultmove4 = new Vector2D(0,0);
+		updateEnvironment(envArray4,env4);
+		TransitionModel tm4 = new TransitionModel();
+		new TransitionHandler(tm3,defaultmove4);
+		RewardModel rm4 = new RewardModel();
+		State[][] states4 = generateStates(env4);
+		Policy p4 = new Policy(states4,tm4,rm4);
+		policyIteration(p4, discount4);
+		printUtilities(states4);
+		plotPolicy(p4, discount4);
+		printPolicy(p4);
 	}
 	
 	public static State[][] generateStates(Environment env) throws Exception{
@@ -76,15 +132,15 @@ public class mainApp {
 			State[][] s = sta.clone();
 			int x = s[0].length;
 			int y = s.length;
-			double delta = 0;
-			double internaldelta = 0;
+			double delta = 0; //change in utility
+			double internaldelta = 0; //internal variable used to check change
 			for (int a = 0; a < x; a++) {
 				for (int b = 0; b < y; b++) {
 					if (sta[b][a].isRewardable()){
 						Action[] acts = sta[b][a].getActions();
 						double reward = sta[b][a].getReward(rm);
-						double expectimax = Double.NEGATIVE_INFINITY;
-						for (int c = 0; c < acts.length; c++) {
+						double expectimax = Double.NEGATIVE_INFINITY;//expectimax value for utility
+						for (int c = 0; c < acts.length; c++) {//code to update best utility
 							//System.out.println(c);
 							double intravalue = discount*TransitionHandler.expectedUtility(sta[b][a], acts[c], p);
 							if (intravalue > expectimax){
@@ -100,6 +156,10 @@ public class mainApp {
 					}
 				}
 			}
+			//if (count % 50 == 0) {
+				//System.out.println("Iteration : "+ count);
+				//printUtilities(s);
+			//}
 			p.setStates(s);
 			count = count + 1;
 			if (delta < error*(1-discount)/discount) {
@@ -170,9 +230,10 @@ public class mainApp {
 					}
 				} 
 			}
+			//printUtilities(s);
 			p.setStates(s);
 			count++;
-			System.out.println("Iteration : "+ count);
+			//System.out.println("Iteration : "+ count);
 		}
 		return;
 	}
